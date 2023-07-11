@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen';
 import OnboardingScreen from './screens/Auth/OnBoardScreen';
 import SignUpScreen from './screens/Auth/SignUpScreen';
 import SignInScreen from './screens/Auth/SignInScreen';
+import CreateScreen from './screens/CreateScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,11 +29,12 @@ export default function App() {
           component={SignUpScreen}
           options={{headerShown: false}}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="SignIn"
           component={SignInScreen}
           options={{headerShown: false}}
         />
+        <Stack.Screen name="Create" component={CreateScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
