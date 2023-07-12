@@ -1,17 +1,27 @@
-import React from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Pressable,
+  PanResponder,
   Image,
+  Dimensions,
+  Pressable,
   TouchableOpacity,
+  PermissionsAndroid,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import RNFS from 'react-native-fs';
+import ViewShot from 'react-native-view-shot';
+import RNFetchBlob from 'react-native-fetch-blob';
+
+import ImageResizer from 'react-native-image-resizer';
 
 export default function SliderFrameScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const {imageA, imageB} = route.params;
 
   const signUpHandler = () => {
     navigation.navigate('SignUp');
@@ -19,6 +29,83 @@ export default function SliderFrameScreen() {
 
   const signInHandler = () => {
     navigation.navigate('SignIn');
+  };
+
+  const [sliderValue, setSliderValue] = useState(50);
+  const [windowWidth, setWindowWidth] = useState(
+    Dimensions.get('window').width,
+  );
+
+  const handleSliderChange = value => {
+    const newSliderValue = Math.max(0, Math.min(100, value));
+    setSliderValue(newSliderValue);
+  };
+
+  const [originalImageAWidth, setOriginalImageAWidth] = useState(0);
+  const [originalImageBWidth, setOriginalImageBWidth] = useState(0);
+
+  useEffect(() => {
+    Image.getSize(imageA, (width, height) => {
+      setOriginalImageAWidth(width);
+    });
+
+    Image.getSize(imageB, (width, height) => {
+      setOriginalImageBWidth(width);
+    });
+  }, [imageA, imageB]);
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: (event, gestureState) => {
+      const {dx} = gestureState;
+      const newSliderValue = sliderValue + (dx / windowWidth) * 100;
+      setSliderValue(newSliderValue);
+    },
+    onPanResponderRelease: () => {
+      // Add any necessary cleanup code
+    },
+  });
+
+  const viewShotRef = useRef();
+
+  const saveCombinedImage = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'App needs access to your storage to save images.',
+          buttonPositive: 'OK',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        const imageAWidth = (sliderValue / 100) * windowWidth;
+        const imageBWidth = windowWidth - imageAWidth;
+
+        const combinedImagePath = `${RNFS.CachesDirectoryPath}/combinedImage.jpg`;
+
+        // Capture the view containing the combined images
+        const uri = await viewShotRef.current.capture();
+        console.log('Captured image URI:', uri);
+
+        const img = uri.replace('file://', ''); // Remove 'file://' prefix
+
+        // Convert base64 to binary
+        const response = await RNFetchBlob.config({
+          path: combinedImagePath,
+        }).fetch('GET', `file://${img}`, {
+          'Content-Type': 'application/octet-stream',
+        });
+
+        console.log('Combined image downloaded successfully:', response.path());
+      } else {
+        console.log('Storage permission denied');
+      }
+    } catch (error) {
+      console.log('Error saving combined image:', error);
+    }
   };
 
   return (
@@ -44,9 +131,35 @@ export default function SliderFrameScreen() {
         <Text style={styles.createText}>
           <Text style={styles.sliderText}>Slider</Text> Frame
         </Text>
-        <Image style={styles.image} source={require('../assets/image.jpg')} />
+        <ViewShot
+          ref={viewShotRef}
+          style={styles.imageContainer}
+          options={{format: 'jpg', quality: 1}}>
+          <Image
+            source={{uri: imageA}}
+            style={[
+              styles.image,
+              {flex: (sliderValue / 100) * originalImageAWidth},
+            ]}
+            resizeMode="cover"
+          />
+          <Image
+            source={{uri: imageB}}
+            style={[
+              styles.image,
+              {flex: ((100 - sliderValue) / 100) * originalImageBWidth},
+            ]}
+            resizeMode="cover"
+          />
+        </ViewShot>
+        <View style={styles.sliderContainer} {...panResponder.panHandlers}>
+          <View style={styles.sliderLine} />
+          <View style={[styles.sliderHandle, {left: `${sliderValue}%`}]} />
+        </View>
       </View>
-      <TouchableOpacity style={styles.goButtonContainer}>
+      <TouchableOpacity
+        style={styles.goButtonContainer}
+        onPress={saveCombinedImage}>
         <View style={styles.goButton}>
           <Text style={styles.goButtonText}>Capture</Text>
         </View>
@@ -105,10 +218,35 @@ const styles = StyleSheet.create({
   sliderText: {
     color: '#E962FF',
   },
-  image: {
+  imageContainer: {
+    flexDirection: 'row',
     width: '100%',
     height: 400,
-    marginTop: 50,
+  },
+  image: {
+    flex: 1,
+    height: '100%',
+  },
+  sliderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
+    marginVertical: 20,
+  },
+  sliderLine: {
+    height: 2,
+    backgroundColor: 'black',
+    flex: 1,
+  },
+  sliderHandle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'black',
+    position: 'absolute',
+    zIndex: 1,
+    transform: [{translateX: -10}],
   },
   goButtonContainer: {
     width: 300,

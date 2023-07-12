@@ -83,7 +83,10 @@ export default function CreateScreen() {
   };
   const gohandler = () => {
     if (selectedFrame == 'Slider') {
-      navigation.navigate('SlideFrame');
+      navigation.navigate('SlideFrame', {
+        imageA: selectedImageA,
+        imageB: selectedImageB,
+      });
     } else if (selectedFrame == 'Before-After') {
       navigation.navigate('BeforeAfterFrame');
     }
