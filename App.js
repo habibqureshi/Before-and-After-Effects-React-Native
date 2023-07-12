@@ -7,6 +7,9 @@ import OnboardingScreen from './screens/Auth/OnBoardScreen';
 import SignUpScreen from './screens/Auth/SignUpScreen';
 import SignInScreen from './screens/Auth/SignInScreen';
 import CreateScreen from './screens/CreateScreen';
+import SliderFrameScreen from './screens/SliderFrameScreen';
+import BeforeAfterFrameScreen from './screens/BeforeAfterFrameScreen';
+import MyLibraryScreen from './screens/MyLibraryScreen';
 
 const Stack = createStackNavigator();
 
@@ -34,7 +37,26 @@ export default function App() {
           component={SignInScreen}
           options={{headerShown: false}}
         />
-        <Stack.Screen name="Create" component={CreateScreen} />
+        <Stack.Screen
+          name="Create"
+          component={CreateScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SlideFrame"
+          component={SliderFrameScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="BeforeAfterFrame"
+          component={BeforeAfterFrameScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="MyLibrary"
+          component={MyLibraryScreen}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

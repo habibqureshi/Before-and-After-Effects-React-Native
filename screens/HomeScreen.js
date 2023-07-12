@@ -14,6 +14,9 @@ export default function HomeScreen() {
     // console.log('Create is pressed');
     navigation.navigate('Create');
   };
+  const mylibraryhndlr = () => {
+    navigation.navigate('MyLibrary');
+  };
   return (
     <View style={styles.container}>
       <View style={styles.hiContainer}>
@@ -52,14 +55,16 @@ export default function HomeScreen() {
             style={styles.footerimg}
             source={require('../assets/PhotoGallery.png')}
           />
-          <Text style={{fontSize: 20, fontWeight: '600', color: '#FFFFFF'}}>
-            {'   '}
-            go to
-            <Text style={{fontSize: 20, fontWeight: '600', color: '#DA34F5'}}>
-              {' '}
-              my Library
+          <Pressable onPress={mylibraryhndlr}>
+            <Text style={{fontSize: 20, fontWeight: '600', color: '#FFFFFF'}}>
+              {'   '}
+              go to
+              <Text style={{fontSize: 20, fontWeight: '600', color: '#DA34F5'}}>
+                {' '}
+                my Library
+              </Text>
             </Text>
-          </Text>
+          </Pressable>
         </View>
       </View>
     </View>
