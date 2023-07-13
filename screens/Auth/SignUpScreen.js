@@ -64,14 +64,14 @@ export default function SignUpScreen() {
             </View>
             <View style={styles.buttonContainer}>
               <Icon.Button
-                name="apple"
+                name="facebook"
                 size={20}
                 color="white"
-                backgroundColor="#111111"
+                backgroundColor="#3b5998"
                 style={styles.button}
                 // onPress={handleAppleSignUp}
               >
-                Sign up with Apple
+                Sign up with facebook
               </Icon.Button>
             </View>
             <View style={styles.orContainer}>

@@ -90,14 +90,12 @@ export default function SignInScreen() {
             </View>
             <View style={styles.buttonContainer}>
               <Icon.Button
-                name="apple"
+                name="facebook"
                 size={20}
                 color="white"
-                backgroundColor="#111111"
-                style={styles.button}
-                // onPress={handleAppleSignUp}
-              >
-                Sign in with Apple
+                backgroundColor="#3b5998"
+                style={styles.button}>
+                Sign in with facebook
               </Icon.Button>
             </View>
             <View style={styles.orContainer}>
