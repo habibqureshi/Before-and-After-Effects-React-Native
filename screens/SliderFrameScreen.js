@@ -14,9 +14,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import ViewShot from 'react-native-view-shot';
-import RNFetchBlob from 'react-native-fetch-blob';
-
-import ImageResizer from 'react-native-image-resizer';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 
 export default function SliderFrameScreen() {
   const navigation = useNavigation();
@@ -35,11 +33,6 @@ export default function SliderFrameScreen() {
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width,
   );
-
-  const handleSliderChange = value => {
-    const newSliderValue = Math.max(0, Math.min(100, value));
-    setSliderValue(newSliderValue);
-  };
 
   const [originalImageAWidth, setOriginalImageAWidth] = useState(0);
   const [originalImageBWidth, setOriginalImageBWidth] = useState(0);
@@ -84,22 +77,17 @@ export default function SliderFrameScreen() {
         const imageAWidth = (sliderValue / 100) * windowWidth;
         const imageBWidth = windowWidth - imageAWidth;
 
-        const combinedImagePath = `${RNFS.CachesDirectoryPath}/combinedImage.jpg`;
-
         // Capture the view containing the combined images
         const uri = await viewShotRef.current.capture();
+
         console.log('Captured image URI:', uri);
 
-        const img = uri.replace('file://', ''); // Remove 'file://' prefix
+        const imagePath = uri.replace('file://', ''); // Remove the 'file://' prefix
 
-        // Convert base64 to binary
-        const response = await RNFetchBlob.config({
-          path: combinedImagePath,
-        }).fetch('GET', `file://${img}`, {
-          'Content-Type': 'application/octet-stream',
-        });
+        // Save the image to the gallery
+        await CameraRoll.save(imagePath);
 
-        console.log('Combined image downloaded successfully:', response.path());
+        console.log('Combined image saved to gallery successfully!');
       } else {
         console.log('Storage permission denied');
       }
