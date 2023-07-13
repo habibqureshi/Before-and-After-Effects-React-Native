@@ -88,7 +88,10 @@ export default function CreateScreen() {
         imageB: selectedImageB,
       });
     } else if (selectedFrame == 'Before-After') {
-      navigation.navigate('BeforeAfterFrame');
+      navigation.navigate('BeforeAfterFrame', {
+        imageA: selectedImageA,
+        imageB: selectedImageB,
+      });
     }
   };
   return (
