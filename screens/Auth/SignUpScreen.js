@@ -28,7 +28,7 @@ export default function SignUpScreen() {
     setRememberMe(!rememberMe);
   };
   const signinhandler = () => {
-    navigation.navigate('SignIn');
+    navigation.replace('SignIn');
   };
 
   return (
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   contentContainer: {
-    marginTop: 30,
+    marginTop: 20,
   },
   imageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
   },
   textContainer: {
     alignItems: 'center',

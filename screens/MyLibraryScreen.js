@@ -13,10 +13,10 @@ import {useNavigation} from '@react-navigation/native';
 export default function MyLibraryScreen() {
   const navigation = useNavigation();
   const signUpHandler = () => {
-    navigation.navigate('SignUp');
+    navigation.replace('SignUp');
   };
   const signInHandler = () => {
-    navigation.navigate('SignIn');
+    navigation.replace('SignIn');
   };
   return (
     <View style={styles.container}>

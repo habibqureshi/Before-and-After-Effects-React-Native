@@ -17,7 +17,7 @@ export default function OnBoardScreen() {
   const navigation = useNavigation();
 
   const handleGetStarted = () => {
-    navigation.navigate('SignUp');
+    navigation.replace('SignUp');
   };
 
   const slides = [

@@ -8,13 +8,18 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import * as ImagePicker from 'react-native-image-picker';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 export default function CreateScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const userName = route.params?.userInfo?.user?.name || 'Guest';
+
   const signUpHandler = () => {
     navigation.navigate('SignUp');
   };
@@ -86,14 +91,32 @@ export default function CreateScreen() {
       navigation.navigate('SlideFrame', {
         imageA: selectedImageA,
         imageB: selectedImageB,
+        userInfo: route.params?.userInfo,
       });
     } else if (selectedFrame == 'Before-After') {
       navigation.navigate('BeforeAfterFrame', {
         imageA: selectedImageA,
         imageB: selectedImageB,
+        userInfo: route.params?.userInfo,
       });
     }
   };
+  const signOutHandler = async () => {
+    try {
+      await GoogleSignin.signOut();
+      setUserLoggedIn(false); // Set the userLoggedIn state to false
+      console.log('Signed out successfully');
+      navigation.replace('SignIn');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    // Check if the user is signed in
+    if (userName !== 'Guest') {
+      setUserLoggedIn(true);
+    }
+  }, [userName]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -103,19 +126,35 @@ export default function CreateScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          <Text style={styles.hitext}>hi Guest</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Pressable onPress={signUpHandler}>
-              <Text style={styles.signupText}>signup</Text>
-            </Pressable>
-            <Text style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
-              {' '}
-              |{' '}
-            </Text>
-            <Pressable onPress={signInHandler}>
-              <Text style={styles.signupText}>login</Text>
-            </Pressable>
-          </View>
+          {userLoggedIn ? (
+            <>
+              <Text style={styles.hitext}>hi {userName}</Text>
+              <Pressable onPress={signOutHandler}>
+                <Text style={styles.signupText}>Sign Out</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={styles.hitext}>hi Guest</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Pressable onPress={signUpHandler}>
+                  <Text style={styles.signupText}>Sign Up</Text>
+                </Pressable>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: '#DA34F5',
+                    fontWeight: 'bold',
+                  }}>
+                  {' '}
+                  |{' '}
+                </Text>
+                <Pressable onPress={signInHandler}>
+                  <Text style={styles.signupText}>Sign In</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
         </View>
       </View>
       <View style={styles.iconContainer}>

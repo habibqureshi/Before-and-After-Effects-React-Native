@@ -1,38 +1,75 @@
 import {View, Text, StyleSheet, Pressable, Image} from 'react-native';
-import React from 'react';
-import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 export default function HomeScreen() {
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
   const navigation = useNavigation();
+  const route = useRoute();
+
+  // Extract the user's name from the userInfo parameter
+  const userName = route.params?.userInfo?.user?.name || 'Guest';
   const signUpHandler = () => {
-    navigation.navigate('SignUp');
+    navigation.replace('SignUp');
   };
   const signInHandler = () => {
-    navigation.navigate('SignIn');
+    navigation.replace('SignIn');
   };
   const createhandler = () => {
     // console.log('Create is pressed');
-    navigation.navigate('Create');
+    navigation.navigate('Create', {
+      userInfo: route.params?.userInfo,
+    });
   };
   const mylibraryhndlr = () => {
     navigation.navigate('MyLibrary');
   };
+  const signOutHandler = async () => {
+    try {
+      await GoogleSignin.signOut();
+      setUserLoggedIn(false); // Set the userLoggedIn state to false
+      console.log('Signed out successfully');
+      navigation.replace('SignIn');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    // Check if the user is signed in
+    if (userName !== 'Guest') {
+      setUserLoggedIn(true);
+    }
+  }, [userName]);
   return (
     <View style={styles.container}>
       <View style={styles.hiContainer}>
-        <Text style={styles.hitext}>hi Guest</Text>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Pressable onPress={signUpHandler}>
-            <Text style={styles.signupText}>signup</Text>
-          </Pressable>
-          <Text style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
-            {' '}
-            |{' '}
-          </Text>
-          <Pressable onPress={signInHandler}>
-            <Text style={styles.signupText}>login</Text>
-          </Pressable>
-        </View>
+        {/* <Text style={styles.hitext}>hi {userName}</Text> */}
+        {userLoggedIn ? (
+          <>
+            <Text style={styles.hitext}>hi {userName}</Text>
+            <Pressable onPress={signOutHandler}>
+              <Text style={styles.signupText}>Sign Out</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={styles.hitext}>hi Guest</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Pressable onPress={signUpHandler}>
+                <Text style={styles.signupText}>Sign Up</Text>
+              </Pressable>
+              <Text
+                style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
+                {' '}
+                |{' '}
+              </Text>
+              <Pressable onPress={signInHandler}>
+                <Text style={styles.signupText}>Sign In</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </View>
       <View style={styles.whatContainer}>
         <Text style={styles.whattext}>

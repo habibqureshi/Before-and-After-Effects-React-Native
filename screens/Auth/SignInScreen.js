@@ -3,7 +3,7 @@
 //   statusCodes,
 // } from '@react-native-google-signin/google-signin';
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,39 @@ import {
   Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 export default function SignInScreen() {
+  const [userInfo, setUserInfo] = useState(null);
   const navigation = useNavigation();
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '536256767534-l0o3oenlqh89si3ksh8ghsd30j0meo3s.apps.googleusercontent.com',
+    });
+  }, []);
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const usrInfo = await GoogleSignin.signIn();
+      setUserInfo(usrInfo);
+      console.log('User Info============', usrInfo);
+      navigation.replace('Home', {userInfo: usrInfo}); // Pass the retrieved user information when signing in with Google
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation (e.g. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // play services not available or outdated
+      } else {
+        // some other error happened
+      }
+    }
+  };
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -32,30 +62,10 @@ export default function SignInScreen() {
     setRememberMe(!rememberMe);
   };
   const signUpHandler = () => {
-    navigation.navigate('SignUp');
+    navigation.replace('SignUp');
   };
   const signInHandler = () => {
-    navigation.navigate('Home');
-  };
-  const signInWithGoogle = async () => {
-    console.log('Google Signed in presses');
-    // try {
-    //   await GoogleSignin.hasPlayServices();
-    //   const userInfo = await GoogleSignin.signIn();
-    //   // Handle the user information after successful sign-in
-    //   console.log(userInfo);
-    // } catch (error) {
-    //   if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-    //     // User cancelled the sign-in flow
-    //     console.log('Sign-in cancelled');
-    //   } else if (error.code === statusCodes.IN_PROGRESS) {
-    //     // Another sign-in operation is already in progress
-    //     console.log('Sign-in is in progress');
-    //   } else {
-    //     // Other error occurred
-    //     console.log('Sign-in error:', error);
-    //   }
-    // }
+    navigation.replace('Home', {userInfo: null});
   };
 
   return (
