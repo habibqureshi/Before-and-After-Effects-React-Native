@@ -15,6 +15,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import SideBySide from 'react-native-side-by-side-views';
 
 export default function SliderFrameScreen() {
   const navigation = useNavigation();
@@ -30,39 +31,6 @@ export default function SliderFrameScreen() {
   const signInHandler = () => {
     navigation.replace('SignIn');
   };
-
-  const [sliderValue, setSliderValue] = useState(50);
-  const [windowWidth, setWindowWidth] = useState(
-    Dimensions.get('window').width,
-  );
-
-  const [originalImageAWidth, setOriginalImageAWidth] = useState(0);
-  const [originalImageBWidth, setOriginalImageBWidth] = useState(0);
-
-  useEffect(() => {
-    Image.getSize(imageA, (width, height) => {
-      setOriginalImageAWidth(width);
-    });
-
-    Image.getSize(imageB, (width, height) => {
-      setOriginalImageBWidth(width);
-    });
-  }, [imageA, imageB]);
-
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (event, gestureState) => {
-      const {dx} = gestureState;
-      const newSliderValue = sliderValue + (dx / windowWidth) * 100;
-      setSliderValue(newSliderValue);
-    },
-    onPanResponderRelease: () => {
-      // Add any necessary cleanup code
-    },
-  });
-
-  const viewShotRef = useRef();
 
   const saveCombinedImage = async () => {
     try {
@@ -98,9 +66,14 @@ export default function SliderFrameScreen() {
     }
   };
   useEffect(() => {
-    // Check if the user is signed in
-    if (userName !== 'Guest') {
-      setUserLoggedIn(true);
+    try {
+      // Check if the user is signed in
+      if (userName !== 'Guest') {
+        setUserLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error in useEffect:', error);
+      // Handle the error here, show an error message, or perform other actions if needed.
     }
   }, [userName]);
   const signOutHandler = async () => {
@@ -158,33 +131,24 @@ export default function SliderFrameScreen() {
         <Text style={styles.createText}>
           <Text style={styles.sliderText}>Slider</Text> Frame
         </Text>
-        <ViewShot
-          ref={viewShotRef}
-          style={styles.imageContainer}
-          options={{format: 'jpg', quality: 1}}>
-          <Image
-            source={{uri: imageA}}
-            style={[
-              styles.image,
-              {flex: (sliderValue / 100) * originalImageAWidth},
-            ]}
-            resizeMode="cover"
-          />
-          <Image
-            source={{uri: imageB}}
-            style={[
-              styles.image,
-              {flex: ((100 - sliderValue) / 100) * originalImageBWidth},
-            ]}
-            resizeMode="cover"
-          />
-        </ViewShot>
-
-        <View style={styles.sliderContainer} {...panResponder.panHandlers}>
-          <View style={styles.sliderLine} />
-          <View style={[styles.sliderHandle, {left: `${sliderValue}%`}]} />
-        </View>
       </View>
+      <SideBySide
+        style={styles.sidebysidecontainer}
+        dividerStyle={{
+          top: 30,
+          width: 8,
+          borderRadius: 10,
+          opacity: 0.7,
+          backgroundColor: 'black',
+          paddingVertical: 220,
+        }}>
+        <View>
+          <Image source={{uri: imageA}} style={styles.images} />
+        </View>
+        <View>
+          <Image source={{uri: imageB}} style={styles.images} />
+        </View>
+      </SideBySide>
       <TouchableOpacity
         style={styles.goButtonContainer}
         onPress={saveCombinedImage}>
@@ -251,9 +215,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 400,
   },
-  image: {
-    flex: 1,
-    height: '100%',
+
+  sidebysidecontainer: {
+    // flex: 1,
+    marginTop: 0,
+    backgroundColor: '#fff',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  images: {
+    // marginTop: 30,
+    height: 400,
+    width: 400,
   },
   sliderContainer: {
     flexDirection: 'row',
