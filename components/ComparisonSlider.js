@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Image, ImageBackground} from 'react-native';
+import {View, Image, ImageBackground, Alert} from 'react-native';
 
 //  @Copyright: jeanregisser
 //  MIT: https://github.com/jeanregisser/react-native-slider
@@ -68,6 +68,7 @@ export default class ComparisonSlider extends Component {
       leftImage: leftImage,
       rightImage: rightImage,
       sliderTrackColor: 'transparent',
+      hideDivider: props.hideDivider,
     };
   }
 
@@ -210,7 +211,7 @@ export default class ComparisonSlider extends Component {
               }}>
               {this.props.thumbnailRender()}
             </View>
-          ) : (
+          ) : this.props.hideDivider ? null : (
             this.renderDefaultThumbView()
           )}
 

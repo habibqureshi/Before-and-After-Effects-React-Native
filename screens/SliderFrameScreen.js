@@ -18,6 +18,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import ComparisonSlider from '../components/ComparisonSlider';
 
 export default function SliderFrameScreen() {
+  const [hideDivider, setHideDivider] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
   const {imageA, imageB} = route.params;
@@ -34,6 +35,7 @@ export default function SliderFrameScreen() {
   };
 
   const saveCombinedImage = async () => {
+    setHideDivider(true);
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -140,6 +142,7 @@ export default function SliderFrameScreen() {
           initialPosition={50}
           leftImageURI={imageA}
           rightImageURI={imageB}
+          hideDivider={hideDivider}
         />
       </ViewShot>
       <TouchableOpacity
