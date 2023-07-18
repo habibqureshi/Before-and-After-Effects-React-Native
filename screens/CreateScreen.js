@@ -88,6 +88,7 @@ export default function CreateScreen() {
   };
   const gohandler = () => {
     if (selectedFrame == 'Slider') {
+      // navigation.navigate('testing');
       navigation.navigate('SlideFrame', {
         imageA: selectedImageA,
         imageB: selectedImageB,

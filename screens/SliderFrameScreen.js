@@ -15,7 +15,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import SideBySide from 'react-native-side-by-side-views';
+import ComparisonSlider from '../components/ComparisonSlider';
 
 export default function SliderFrameScreen() {
   const navigation = useNavigation();
@@ -23,6 +23,7 @@ export default function SliderFrameScreen() {
   const {imageA, imageB} = route.params;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const viewShotRef = useRef();
 
   const signUpHandler = () => {
     navigation.replace('SignUp');
@@ -132,23 +133,19 @@ export default function SliderFrameScreen() {
           <Text style={styles.sliderText}>Slider</Text> Frame
         </Text>
       </View>
-      <SideBySide
-        style={styles.sidebysidecontainer}
-        dividerStyle={{
-          top: 30,
-          width: 8,
-          borderRadius: 10,
-          opacity: 0.7,
-          backgroundColor: 'black',
-          paddingVertical: 220,
-        }}>
-        <View>
-          <Image source={{uri: imageA}} style={styles.images} />
-        </View>
-        <View>
-          <Image source={{uri: imageB}} style={styles.images} />
-        </View>
-      </SideBySide>
+
+      <ViewShot
+        ref={viewShotRef}
+        style={styles.imageContainer}
+        options={{format: 'jpg', quality: 1}}>
+        <ComparisonSlider
+          imageWidth={400}
+          imageHeight={400}
+          initialPosition={50}
+          leftImageURI={imageA}
+          rightImageURI={imageB}
+        />
+      </ViewShot>
       <TouchableOpacity
         style={styles.goButtonContainer}
         onPress={saveCombinedImage}>
@@ -220,7 +217,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     marginTop: 0,
     backgroundColor: '#fff',
-    alignItems: 'flex-start',
+    // alignItems: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
   },
