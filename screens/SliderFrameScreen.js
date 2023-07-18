@@ -45,10 +45,6 @@ export default function SliderFrameScreen() {
       );
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        const imageAWidth = (sliderValue / 100) * windowWidth;
-        const imageBWidth = windowWidth - imageAWidth;
-
-        // Capture the view containing the combined images
         const uri = await viewShotRef.current.capture();
 
         console.log('Captured image URI:', uri);
