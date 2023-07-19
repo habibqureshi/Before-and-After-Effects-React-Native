@@ -21,6 +21,8 @@ export default function BeforeAfterFrameScreen() {
   const {imageA, imageB} = route.params;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userEmail = route.params.userEmail;
+
   const signUpHandler = () => {
     navigation.replace('SignUp');
   };
@@ -60,10 +62,10 @@ export default function BeforeAfterFrameScreen() {
   };
   useEffect(() => {
     // Check if the user is signed in
-    if (userName !== 'Guest') {
+    if (userName || userEmail !== 'Guest') {
       setUserLoggedIn(true);
     }
-  }, [userName]);
+  }, [userName, userEmail]);
   const signOutHandler = async () => {
     try {
       await GoogleSignin.signOut();
@@ -85,7 +87,11 @@ export default function BeforeAfterFrameScreen() {
         <View style={styles.hiContainer}>
           {userLoggedIn ? (
             <>
-              <Text style={styles.hitext}>hi {userName}</Text>
+              {userEmail ? (
+                <Text style={styles.hitext}>hi {userEmail}</Text>
+              ) : (
+                <Text style={styles.hitext}>hi {userName}</Text>
+              )}
               <Pressable onPress={signOutHandler}>
                 <Text style={styles.signupText}>Sign Out</Text>
               </Pressable>

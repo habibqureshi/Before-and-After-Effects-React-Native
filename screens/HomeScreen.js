@@ -8,8 +8,8 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  // Extract the user's name from the userInfo parameter
   const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userEmail = route.params.email;
   const signUpHandler = () => {
     navigation.replace('SignUp');
   };
@@ -17,9 +17,9 @@ export default function HomeScreen() {
     navigation.replace('SignIn');
   };
   const createhandler = () => {
-    // console.log('Create is pressed');
     navigation.navigate('Create', {
       userInfo: route.params?.userInfo,
+      userEmail: userEmail,
     });
   };
   const mylibraryhndlr = () => {
@@ -28,7 +28,7 @@ export default function HomeScreen() {
   const signOutHandler = async () => {
     try {
       await GoogleSignin.signOut();
-      setUserLoggedIn(false); // Set the userLoggedIn state to false
+      setUserLoggedIn(false);
       console.log('Signed out successfully');
       navigation.replace('SignIn');
     } catch (error) {
@@ -37,17 +37,21 @@ export default function HomeScreen() {
   };
   useEffect(() => {
     // Check if the user is signed in
-    if (userName !== 'Guest') {
+    if (userName || userEmail !== 'Guest') {
       setUserLoggedIn(true);
     }
-  }, [userName]);
+  }, [userName, userEmail]);
   return (
     <View style={styles.container}>
       <View style={styles.hiContainer}>
-        {/* <Text style={styles.hitext}>hi {userName}</Text> */}
         {userLoggedIn ? (
           <>
-            <Text style={styles.hitext}>hi {userName}</Text>
+            {userEmail ? (
+              <Text style={styles.hitext}>hi {userEmail}</Text>
+            ) : (
+              <Text style={styles.hitext}>hi {userName}</Text>
+            )}
+
             <Pressable onPress={signOutHandler}>
               <Text style={styles.signupText}>Sign Out</Text>
             </Pressable>

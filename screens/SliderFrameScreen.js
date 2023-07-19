@@ -24,6 +24,8 @@ export default function SliderFrameScreen() {
   const {imageA, imageB} = route.params;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userEmail = route.params.userEmail;
+
   const viewShotRef = useRef();
 
   const signUpHandler = () => {
@@ -37,6 +39,32 @@ export default function SliderFrameScreen() {
   const saveCombinedImage = async () => {
     setHideDivider(true);
     try {
+      // if (userLoggedIn) {
+      //   const user = auth.currentUser;
+      //   if (user) {
+      //     const userEmail =
+      //       user.email || (user.providerData[0] && user.providerData[0].email);
+      //     console.log('Email:=======', userEmail); // Access the email address from the user object
+      //     if (!userEmail) {
+      //       console.log('User email not available.');
+      //       return;
+      //     }
+
+      //     const storageRef = firebaseStorage.ref();
+      //     console.log('fbstor======', firebaseStorage);
+      //     const imageFileName = `combined_${userEmail}.jpg`; // Using the user's email as the filename
+
+      //     const uri = await viewShotRef.current.capture();
+      //     const response = await fetch(uri);
+      //     const blob = await response.blob();
+
+      //     // Use putFile() to upload the file to Firebase Storage
+      //     await storageRef.child(imageFileName).putFile(uri);
+
+      //     console.log('Combined image saved to Firebase Storage successfully!');
+      //   }
+      // }
+
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         {
@@ -65,16 +93,11 @@ export default function SliderFrameScreen() {
     }
   };
   useEffect(() => {
-    try {
-      // Check if the user is signed in
-      if (userName !== 'Guest') {
-        setUserLoggedIn(true);
-      }
-    } catch (error) {
-      console.error('Error in useEffect:', error);
-      // Handle the error here, show an error message, or perform other actions if needed.
+    // Check if the user is signed in
+    if (userName || userEmail !== 'Guest') {
+      setUserLoggedIn(true);
     }
-  }, [userName]);
+  }, [userName, userEmail]);
   const signOutHandler = async () => {
     try {
       await GoogleSignin.signOut();
@@ -97,7 +120,11 @@ export default function SliderFrameScreen() {
         <View style={styles.hiContainer}>
           {userLoggedIn ? (
             <>
-              <Text style={styles.hitext}>hi {userName}</Text>
+              {userEmail ? (
+                <Text style={styles.hitext}>hi {userEmail}</Text>
+              ) : (
+                <Text style={styles.hitext}>hi {userName}</Text>
+              )}
               <Pressable onPress={signOutHandler}>
                 <Text style={styles.signupText}>Sign Out</Text>
               </Pressable>

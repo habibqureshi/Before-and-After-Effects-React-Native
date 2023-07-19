@@ -10,7 +10,7 @@ import CreateScreen from './screens/CreateScreen';
 import SliderFrameScreen from './screens/SliderFrameScreen';
 import BeforeAfterFrameScreen from './screens/BeforeAfterFrameScreen';
 import MyLibraryScreen from './screens/MyLibraryScreen';
-
+import {auth} from './firebase/firebase.config';
 const Stack = createStackNavigator();
 
 export default function App() {

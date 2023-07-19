@@ -21,9 +21,13 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../../firebase/firebase.config';
 export default function SignInScreen() {
   const [userInfo, setUserInfo] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+
   const navigation = useNavigation();
   useEffect(() => {
     GoogleSignin.configure({
@@ -37,16 +41,12 @@ export default function SignInScreen() {
       const usrInfo = await GoogleSignin.signIn();
       setUserInfo(usrInfo);
       console.log('User Info============', usrInfo);
-      navigation.replace('Home', {userInfo: usrInfo}); // Pass the retrieved user information when signing in with Google
+      navigation.replace('Home', {userInfo: usrInfo});
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
       } else {
-        // some other error happened
       }
     }
   };
@@ -65,7 +65,18 @@ export default function SignInScreen() {
     navigation.replace('SignUp');
   };
   const signInHandler = () => {
-    navigation.replace('Home', {userInfo: null});
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        // Signed in
+        const user = userCredential.user;
+        navigation.replace('Home', {email: email});
+        // ...
+      })
+      .catch(error => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorCode);
+      });
   };
 
   return (
@@ -118,6 +129,9 @@ export default function SignInScreen() {
                 style={styles.inputText}
                 placeholder="Email"
                 placeholderTextColor="#888888"
+                onChangeText={text => {
+                  setEmail(text);
+                }}
               />
             </View>
             <View style={styles.passwordInputContainer}>
@@ -126,6 +140,9 @@ export default function SignInScreen() {
                 placeholder="Password"
                 placeholderTextColor="#888888"
                 secureTextEntry={!passwordVisible}
+                onChangeText={text => {
+                  setPassword(text);
+                }}
               />
               <TouchableOpacity
                 style={styles.eyeIcon}
@@ -193,7 +210,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   contentContainer: {
-    marginTop: 30,
+    marginTop: 10,
   },
   imageContainer: {
     justifyContent: 'center',

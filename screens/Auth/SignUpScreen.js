@@ -13,12 +13,15 @@ import {
   Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
+import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../../firebase/firebase.config';
 export default function SignUpScreen() {
   const navigation = useNavigation();
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -29,6 +32,22 @@ export default function SignUpScreen() {
   };
   const signinhandler = () => {
     navigation.replace('SignIn');
+  };
+  const signUphandler = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        // Signed in
+        const user = userCredential.user;
+        navigation.replace('SignIn');
+
+        // ...
+      })
+      .catch(error => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorCode);
+        // ..
+      });
   };
 
   return (
@@ -84,6 +103,9 @@ export default function SignUpScreen() {
                 style={styles.inputText}
                 placeholder="Email"
                 placeholderTextColor="#888888"
+                onChangeText={text => {
+                  setEmail(text);
+                }}
               />
             </View>
             <View style={styles.passwordInputContainer}>
@@ -92,6 +114,9 @@ export default function SignUpScreen() {
                 placeholder="Password"
                 placeholderTextColor="#888888"
                 secureTextEntry={!passwordVisible}
+                onChangeText={text => {
+                  setPassword(text);
+                }}
               />
               <TouchableOpacity
                 style={styles.eyeIcon}
@@ -106,7 +131,7 @@ export default function SignUpScreen() {
 
             <TouchableOpacity
               style={styles.signupButtonContainer}
-              onPress={signinhandler}>
+              onPress={signUphandler}>
               <View style={styles.signupButton}>
                 <Text style={styles.buttonText}>Sign up</Text>
                 <Icon
@@ -159,7 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   contentContainer: {
-    marginTop: 20,
+    marginTop: 0,
   },
   imageContainer: {
     justifyContent: 'center',

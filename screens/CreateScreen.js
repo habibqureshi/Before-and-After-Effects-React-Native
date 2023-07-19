@@ -19,7 +19,7 @@ export default function CreateScreen() {
   const route = useRoute();
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const userName = route.params?.userInfo?.user?.name || 'Guest';
-
+  const userEmail = route.params.userEmail;
   const signUpHandler = () => {
     navigation.navigate('SignUp');
   };
@@ -93,12 +93,14 @@ export default function CreateScreen() {
         imageA: selectedImageA,
         imageB: selectedImageB,
         userInfo: route.params?.userInfo,
+        userEmail: userEmail,
       });
     } else if (selectedFrame == 'Before-After') {
       navigation.navigate('BeforeAfterFrame', {
         imageA: selectedImageA,
         imageB: selectedImageB,
         userInfo: route.params?.userInfo,
+        userEmail: userEmail,
       });
     }
   };
@@ -114,10 +116,10 @@ export default function CreateScreen() {
   };
   useEffect(() => {
     // Check if the user is signed in
-    if (userName !== 'Guest') {
+    if (userName || userEmail !== 'Guest') {
       setUserLoggedIn(true);
     }
-  }, [userName]);
+  }, [userName, userEmail]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -129,7 +131,11 @@ export default function CreateScreen() {
         <View style={styles.hiContainer}>
           {userLoggedIn ? (
             <>
-              <Text style={styles.hitext}>hi {userName}</Text>
+              {userEmail ? (
+                <Text style={styles.hitext}>hi {userEmail}</Text>
+              ) : (
+                <Text style={styles.hitext}>hi {userName}</Text>
+              )}
               <Pressable onPress={signOutHandler}>
                 <Text style={styles.signupText}>Sign Out</Text>
               </Pressable>
