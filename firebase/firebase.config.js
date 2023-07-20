@@ -2,6 +2,7 @@ import {initializeApp} from 'firebase/app';
 
 import {getAuth} from 'firebase/auth';
 import {getStorage} from 'firebase/storage';
+import storage from '@react-native-firebase/storage';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCALViIRavPw4m7oP1O8nnweZ4UcxwsdOU',
@@ -12,6 +13,7 @@ const firebaseConfig = {
   appId: '1:536256767534:web:c5e3e22855457ac3f7a1bf',
   measurementId: 'G-HMZT738V8W',
 };
+
 export const app = initializeApp(firebaseConfig);
 export const firebaseStorage = getStorage(app);
 export const auth = getAuth(app);

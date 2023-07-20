@@ -16,6 +16,9 @@ import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import ComparisonSlider from '../components/ComparisonSlider';
+import {auth} from '../firebase/firebase.config';
+import storage from '@react-native-firebase/storage';
+import {utils} from '@react-native-firebase/app';
 
 export default function SliderFrameScreen() {
   const [hideDivider, setHideDivider] = useState(false);
@@ -38,32 +41,31 @@ export default function SliderFrameScreen() {
 
   const saveCombinedImage = async () => {
     setHideDivider(true);
+    const uri = await viewShotRef.current.capture();
+
     try {
-      // if (userLoggedIn) {
-      //   const user = auth.currentUser;
-      //   if (user) {
-      //     const userEmail =
-      //       user.email || (user.providerData[0] && user.providerData[0].email);
-      //     console.log('Email:=======', userEmail); // Access the email address from the user object
-      //     if (!userEmail) {
-      //       console.log('User email not available.');
-      //       return;
-      //     }
+      if (userLoggedIn) {
+        const user = auth.currentUser;
+        if (user) {
+          const userEmail =
+            user.email || (user.providerData[0] && user.providerData[0].email);
+          // const imageFileName = `combined_${userEmail}.jpg`;
+          const reference = storage().ref(
+            `${userEmail}${'/'}images/${new Date()}`,
+          );
+          // path to existing file on filesystem
+          const pathToFile = `${utils.FilePath.PICTURES_DIRECTORY}/test.jpg`;
+          // uploads file
+          await reference.putFile(uri);
+          console.log('FILE uploaded to Firebase');
+          alert('Image Saved Successfully.');
+        }
 
-      //     const storageRef = firebaseStorage.ref();
-      //     console.log('fbstor======', firebaseStorage);
-      //     const imageFileName = `combined_${userEmail}.jpg`; // Using the user's email as the filename
-
-      //     const uri = await viewShotRef.current.capture();
-      //     const response = await fetch(uri);
-      //     const blob = await response.blob();
-
-      //     // Use putFile() to upload the file to Firebase Storage
-      //     await storageRef.child(imageFileName).putFile(uri);
-
-      //     console.log('Combined image saved to Firebase Storage successfully!');
-      //   }
-      // }
+        if (!userEmail) {
+          console.log('User email not available.');
+          return;
+        }
+      }
 
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -75,23 +77,21 @@ export default function SliderFrameScreen() {
       );
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        const uri = await viewShotRef.current.capture();
-
-        console.log('Captured image URI:', uri);
-
         const imagePath = uri.replace('file://', ''); // Remove the 'file://' prefix
 
-        // Save the image to the gallery
-        await CameraRoll.save(imagePath);
-
-        console.log('Combined image saved to gallery successfully!');
-      } else {
-        console.log('Storage permission denied');
+        try {
+          // Save the image to the local gallery
+          await CameraRoll.save(imagePath);
+          console.log('Combined image saved to gallery successfully!');
+        } catch (error) {
+          console.log('Error saving combined image to gallery:', error);
+        }
       }
     } catch (error) {
-      console.log('Error saving combined image:', error);
+      console.log('Error saving combined image to Firebase:', error);
     }
   };
+
   useEffect(() => {
     // Check if the user is signed in
     if (userName || userEmail !== 'Guest') {

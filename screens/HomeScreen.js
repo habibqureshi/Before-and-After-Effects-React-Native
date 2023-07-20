@@ -23,7 +23,10 @@ export default function HomeScreen() {
     });
   };
   const mylibraryhndlr = () => {
-    navigation.navigate('MyLibrary');
+    navigation.navigate('MyLibrary',{
+      userInfo: route.params?.userInfo,
+      userEmail: userEmail,
+    });
   };
   const signOutHandler = async () => {
     try {

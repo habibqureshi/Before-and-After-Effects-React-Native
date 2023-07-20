@@ -6,17 +6,70 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import storage from '@react-native-firebase/storage';
+import {auth} from '../firebase/firebase.config';
 
 export default function MyLibraryScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const [userImages, setUserImages] = useState([]);
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userEmail = route.params.userEmail;
   const signUpHandler = () => {
     navigation.replace('SignUp');
   };
   const signInHandler = () => {
     navigation.replace('SignIn');
+  };
+  useEffect(() => {
+    // Check if the user is signed in
+    if (userName || userEmail !== 'Guest') {
+      setUserLoggedIn(true);
+    }
+  }, [userName, userEmail]);
+  useEffect(() => {
+    if (userLoggedIn) {
+      // Function to fetch user's saved images from Firebase Storage
+      const fetchUserImages = async () => {
+        try {
+          const user = auth.currentUser;
+          if (user) {
+            const userEmail =
+              user.email ||
+              (user.providerData[0] && user.providerData[0].email);
+
+            const reference = storage().ref(`${userEmail}${'/'}images`);
+            const listResult = await reference.listAll();
+
+            const imageUrls = await Promise.all(
+              listResult.items.map(async item => {
+                const url = await item.getDownloadURL();
+                return url;
+              }),
+            );
+            setUserImages(imageUrls);
+          }
+        } catch (error) {
+          console.error('Error fetching user images from Firebase:', error);
+        }
+      };
+
+      fetchUserImages();
+    }
+  }, [userLoggedIn]);
+  const signOutHandler = async () => {
+    try {
+      await GoogleSignin.signOut();
+      setUserLoggedIn(false); // Set the userLoggedIn state to false
+      console.log('Signed out successfully');
+      navigation.replace('SignIn');
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <View style={styles.container}>
@@ -27,41 +80,59 @@ export default function MyLibraryScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          <Text style={styles.hitext}>hi Guest</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Pressable onPress={signUpHandler}>
-              <Text style={styles.signupText}>signup</Text>
-            </Pressable>
-            <Text style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
-              {' '}
-              |{' '}
-            </Text>
-            <Pressable onPress={signInHandler}>
-              <Text style={styles.signupText}>login</Text>
-            </Pressable>
-          </View>
+          {userLoggedIn ? (
+            <>
+              {userEmail ? (
+                <Text style={styles.hitext}>hi {userEmail}</Text>
+              ) : (
+                <Text style={styles.hitext}>hi {userName}</Text>
+              )}
+              <Pressable onPress={signOutHandler}>
+                <Text style={styles.signupText}>Sign Out</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={styles.hitext}>hi Guest</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Pressable onPress={signUpHandler}>
+                  <Text style={styles.signupText}>Sign Up</Text>
+                </Pressable>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: '#DA34F5',
+                    fontWeight: 'bold',
+                  }}>
+                  {' '}
+                  |{' '}
+                </Text>
+                <Pressable onPress={signInHandler}>
+                  <Text style={styles.signupText}>Sign In</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
         </View>
       </View>
+
       <View style={styles.iconContainer}>
         <Text style={styles.createtext}>
           <Text style={{color: '#E962FF'}}>my</Text> library
         </Text>
-        <View style={{flexDirection: 'row'}}>
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
-          <Image style={styles.image} source={require('../assets/image.jpg')} />
+        <View style={styles.imageContainer}>
+          {userImages.map((imageUrl, index) => (
+            <View key={index} style={styles.imageWrapper}>
+              <Image
+                style={styles.image}
+                source={{uri: imageUrl}}
+                resizeMode="cover"
+              />
+            </View>
+          ))}
         </View>
       </View>
+
       <TouchableOpacity
         style={styles.goButtonContainer}
         //   onPress={gohandler}
@@ -75,6 +146,17 @@ export default function MyLibraryScreen() {
 }
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFFFFF'},
+  imageContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    marginTop: 20,
+  },
+  imageWrapper: {
+    width: '32%',
+    aspectRatio: 1,
+    marginBottom: 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -117,6 +199,8 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginTop: 50,
+    borderRadius: 10,
+    alignSelf: 'center',
   },
   goButtonContainer: {
     width: 300,
