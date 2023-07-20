@@ -11,14 +11,21 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import storage from '@react-native-firebase/storage';
 import {auth} from '../firebase/firebase.config';
+import {signOut} from 'firebase/auth';
+
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import DeviceInfo from 'react-native-device-info';
 
 export default function MyLibraryScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const [userImages, setUserImages] = useState([]);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const [isLoading, setIsLoading] = useState(true);
+  const userName = route.params?.userInfo?.user?.name;
+  const googleEmail = route.params?.userInfo?.user?.email;
   const userEmail = route.params.userEmail;
+  const localImagePath = '../assets/image.jpg';
   const signUpHandler = () => {
     navigation.replace('SignUp');
   };
@@ -36,13 +43,35 @@ export default function MyLibraryScreen() {
       // Function to fetch user's saved images from Firebase Storage
       const fetchUserImages = async () => {
         try {
-          const user = auth.currentUser;
-          if (user) {
-            const userEmail =
-              user.email ||
-              (user.providerData[0] && user.providerData[0].email);
-
+          if (userEmail) {
+            // Fetch images for logged-in user by userEmail
             const reference = storage().ref(`${userEmail}${'/'}images`);
+            const listResult = await reference.listAll();
+
+            const imageUrls = await Promise.all(
+              listResult.items.map(async item => {
+                const url = await item.getDownloadURL();
+                return url;
+              }),
+            );
+            setUserImages(imageUrls);
+          } else if (googleEmail) {
+            // Fetch images for logged-in user by userName
+            const reference = storage().ref(`${googleEmail}${'/'}images`);
+            const listResult = await reference.listAll();
+
+            const imageUrls = await Promise.all(
+              listResult.items.map(async item => {
+                const url = await item.getDownloadURL();
+                return url;
+              }),
+            );
+            setUserImages(imageUrls);
+          } else {
+            // Fetch images for guest user by deviceId
+            const deviceId = DeviceInfo.getUniqueIdSync();
+
+            const reference = storage().ref(`guests/${deviceId}`);
             const listResult = await reference.listAll();
 
             const imageUrls = await Promise.all(
@@ -58,7 +87,12 @@ export default function MyLibraryScreen() {
         }
       };
 
-      fetchUserImages();
+      fetchUserImages()
+        .then(() => setIsLoading(false))
+        .catch(error => {
+          setIsLoading(false);
+          console.log('Error fetching image from Firebase', error);
+        });
     }
   }, [userLoggedIn]);
   const signOutHandler = async () => {
@@ -71,6 +105,17 @@ export default function MyLibraryScreen() {
       console.error(error);
     }
   };
+  const signOutFirebase = () => {
+    signOut(auth)
+      .then(() => {
+        setUserLoggedIn(false); // Set the userLoggedIn state to false
+        console.log('Signed out successfully from firebase');
+        navigation.replace('SignIn');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -80,16 +125,18 @@ export default function MyLibraryScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          {userLoggedIn ? (
+          {userEmail || userName ? (
             <>
-              {userEmail ? (
-                <Text style={styles.hitext}>hi {userEmail}</Text>
+              <Text style={styles.hitext}>hi {userEmail || userName}</Text>
+              {userName ? (
+                <Pressable onPress={signOutHandler}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               ) : (
-                <Text style={styles.hitext}>hi {userName}</Text>
+                <Pressable onPress={signOutFirebase}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               )}
-              <Pressable onPress={signOutHandler}>
-                <Text style={styles.signupText}>Sign Out</Text>
-              </Pressable>
             </>
           ) : (
             <>
@@ -99,11 +146,7 @@ export default function MyLibraryScreen() {
                   <Text style={styles.signupText}>Sign Up</Text>
                 </Pressable>
                 <Text
-                  style={{
-                    fontSize: 20,
-                    color: '#DA34F5',
-                    fontWeight: 'bold',
-                  }}>
+                  style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
                   {' '}
                   |{' '}
                 </Text>
@@ -120,17 +163,28 @@ export default function MyLibraryScreen() {
         <Text style={styles.createtext}>
           <Text style={{color: '#E962FF'}}>my</Text> library
         </Text>
-        <View style={styles.imageContainer}>
-          {userImages.map((imageUrl, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <Image
-                style={styles.image}
-                source={{uri: imageUrl}}
-                resizeMode="cover"
-              />
-            </View>
-          ))}
-        </View>
+
+        {isLoading ? (
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={require(localImagePath)}
+              resizeMode="cover"
+            />
+          </View>
+        ) : (
+          <View style={styles.imageContainer}>
+            {userImages.map((imageUrl, index) => (
+              <View key={index} style={styles.imageWrapper}>
+                <Image
+                  style={styles.image}
+                  source={{uri: imageUrl}}
+                  resizeMode="cover"
+                />
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <TouchableOpacity
@@ -150,7 +204,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 10,
-    marginTop: 20,
+    marginVertical: 20,
+    justifyContent: 'space-evenly',
   },
   imageWrapper: {
     width: '32%',
@@ -196,8 +251,8 @@ const styles = StyleSheet.create({
     color: '#2A2A2A',
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
     marginTop: 50,
     borderRadius: 10,
     alignSelf: 'center',
@@ -205,7 +260,7 @@ const styles = StyleSheet.create({
   goButtonContainer: {
     width: 300,
     height: 45,
-    marginTop: 80,
+    marginTop: 100,
     alignSelf: 'center',
   },
   goButton: {

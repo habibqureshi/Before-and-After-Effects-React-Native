@@ -10,17 +10,18 @@ import {
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import RNFS from 'react-native-fs';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {auth} from '../firebase/firebase.config';
+import {signOut} from 'firebase/auth';
 
 export default function BeforeAfterFrameScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const {imageA, imageB} = route.params;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userName = route.params?.userInfo?.user?.name;
   const userEmail = route.params.userEmail;
 
   const signUpHandler = () => {
@@ -76,6 +77,17 @@ export default function BeforeAfterFrameScreen() {
       console.error(error);
     }
   };
+  const signOutFirebase = () => {
+    signOut(auth)
+      .then(() => {
+        setUserLoggedIn(false); // Set the userLoggedIn state to false
+        console.log('Signed out successfully from firebase');
+        navigation.replace('SignIn');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -85,16 +97,18 @@ export default function BeforeAfterFrameScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          {userLoggedIn ? (
+          {userEmail || userName ? (
             <>
-              {userEmail ? (
-                <Text style={styles.hitext}>hi {userEmail}</Text>
+              <Text style={styles.hitext}>hi {userEmail || userName}</Text>
+              {userName ? (
+                <Pressable onPress={signOutHandler}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               ) : (
-                <Text style={styles.hitext}>hi {userName}</Text>
+                <Pressable onPress={signOutFirebase}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               )}
-              <Pressable onPress={signOutHandler}>
-                <Text style={styles.signupText}>Sign Out</Text>
-              </Pressable>
             </>
           ) : (
             <>
@@ -104,11 +118,7 @@ export default function BeforeAfterFrameScreen() {
                   <Text style={styles.signupText}>Sign Up</Text>
                 </Pressable>
                 <Text
-                  style={{
-                    fontSize: 20,
-                    color: '#DA34F5',
-                    fontWeight: 'bold',
-                  }}>
+                  style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
                   {' '}
                   |{' '}
                 </Text>

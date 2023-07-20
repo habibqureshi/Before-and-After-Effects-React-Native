@@ -15,6 +15,10 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../../firebase/firebase.config';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 export default function SignUpScreen() {
   const navigation = useNavigation();
 
@@ -22,6 +26,7 @@ export default function SignUpScreen() {
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -32,6 +37,20 @@ export default function SignUpScreen() {
   };
   const signinhandler = () => {
     navigation.replace('SignIn');
+  };
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const usrInfo = await GoogleSignin.signIn();
+      setUserInfo(usrInfo);
+      navigation.replace('Home', {userInfo: usrInfo});
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      } else {
+      }
+    }
   };
   const signUphandler = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -76,8 +95,7 @@ export default function SignUpScreen() {
                 color="white"
                 backgroundColor="#D7503F"
                 style={styles.button}
-                // onPress={handleGoogleSignUp}
-              >
+                onPress={signInWithGoogle}>
                 Sign up with Google
               </Icon.Button>
             </View>

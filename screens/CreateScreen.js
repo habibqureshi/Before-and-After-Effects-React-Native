@@ -13,12 +13,14 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import * as ImagePicker from 'react-native-image-picker';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {auth} from '../firebase/firebase.config';
+import {signOut} from 'firebase/auth';
 
 export default function CreateScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userName = route.params?.userInfo?.user?.name;
   const userEmail = route.params.userEmail;
   const signUpHandler = () => {
     navigation.navigate('SignUp');
@@ -114,6 +116,17 @@ export default function CreateScreen() {
       console.error(error);
     }
   };
+  const signOutFirebase = () => {
+    signOut(auth)
+      .then(() => {
+        setUserLoggedIn(false); // Set the userLoggedIn state to false
+        console.log('Signed out successfully from firebase');
+        navigation.replace('SignIn');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
   useEffect(() => {
     // Check if the user is signed in
     if (userName || userEmail !== 'Guest') {
@@ -129,16 +142,19 @@ export default function CreateScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          {userLoggedIn ? (
+          {userEmail || userName ? (
             <>
-              {userEmail ? (
-                <Text style={styles.hitext}>hi {userEmail}</Text>
+              <Text style={styles.hitext}>hi {userEmail || userName}</Text>
+
+              {userName ? (
+                <Pressable onPress={signOutHandler}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               ) : (
-                <Text style={styles.hitext}>hi {userName}</Text>
+                <Pressable onPress={signOutFirebase}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               )}
-              <Pressable onPress={signOutHandler}>
-                <Text style={styles.signupText}>Sign Out</Text>
-              </Pressable>
             </>
           ) : (
             <>
@@ -148,11 +164,7 @@ export default function CreateScreen() {
                   <Text style={styles.signupText}>Sign Up</Text>
                 </Pressable>
                 <Text
-                  style={{
-                    fontSize: 20,
-                    color: '#DA34F5',
-                    fontWeight: 'bold',
-                  }}>
+                  style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
                   {' '}
                   |{' '}
                 </Text>

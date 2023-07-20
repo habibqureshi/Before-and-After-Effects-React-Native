@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
 import {View, Image, ImageBackground, Alert} from 'react-native';
 
-//  @Copyright: jeanregisser
-//  MIT: https://github.com/jeanregisser/react-native-slider
 import Slider from 'react-native-slider';
 
-//	@Copyright: jhampton
-//	MIT: https://github.com/jhampton/react-native-cropping.git
 const CroppedImage = function (props) {
   return (
     <View

@@ -40,7 +40,6 @@ export default function SignInScreen() {
       await GoogleSignin.hasPlayServices();
       const usrInfo = await GoogleSignin.signIn();
       setUserInfo(usrInfo);
-      console.log('User Info============', usrInfo);
       navigation.replace('Home', {userInfo: usrInfo});
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -60,6 +59,9 @@ export default function SignInScreen() {
 
   const toggleRememberMe = () => {
     setRememberMe(!rememberMe);
+  };
+  const guestHandler = () => {
+    navigation.replace('Home', {email: email});
   };
   const signUpHandler = () => {
     navigation.replace('SignUp');
@@ -119,6 +121,21 @@ export default function SignInScreen() {
                 Sign in with facebook
               </Icon.Button>
             </View>
+
+            <TouchableOpacity
+              style={styles.signupButtonContainer}
+              onPress={guestHandler}>
+              <View style={styles.guestButton}>
+                <Icon
+                  name="user"
+                  size={20}
+                  color="white"
+                  style={styles.arrowIcon}
+                />
+                <Text style={styles.buttonText}>Sign in as Guest</Text>
+              </View>
+            </TouchableOpacity>
+
             <View style={styles.orContainer}>
               <View style={styles.line} />
               <Text style={styles.orText}>or</Text>
@@ -313,6 +330,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '500',
+    marginLeft: 10,
   },
   signupButtonContainer: {
     width: 300,
@@ -322,6 +340,14 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     backgroundColor: '#DA34F5',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  guestButton: {
+    backgroundColor: '#888888',
     flexDirection: 'row',
     justifyContent: 'center',
     paddingVertical: 10,

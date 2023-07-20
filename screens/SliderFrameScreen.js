@@ -19,6 +19,8 @@ import ComparisonSlider from '../components/ComparisonSlider';
 import {auth} from '../firebase/firebase.config';
 import storage from '@react-native-firebase/storage';
 import {utils} from '@react-native-firebase/app';
+import DeviceInfo from 'react-native-device-info';
+import {signOut} from 'firebase/auth';
 
 export default function SliderFrameScreen() {
   const [hideDivider, setHideDivider] = useState(false);
@@ -26,7 +28,8 @@ export default function SliderFrameScreen() {
   const route = useRoute();
   const {imageA, imageB} = route.params;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userName = route.params?.userInfo?.user?.name;
+  const googleEmail = route.params?.userInfo?.user?.email;
   const userEmail = route.params.userEmail;
 
   const viewShotRef = useRef();
@@ -44,28 +47,46 @@ export default function SliderFrameScreen() {
     const uri = await viewShotRef.current.capture();
 
     try {
-      if (userLoggedIn) {
-        const user = auth.currentUser;
-        if (user) {
-          const userEmail =
-            user.email || (user.providerData[0] && user.providerData[0].email);
-          // const imageFileName = `combined_${userEmail}.jpg`;
-          const reference = storage().ref(
-            `${userEmail}${'/'}images/${new Date()}`,
-          );
-          // path to existing file on filesystem
-          const pathToFile = `${utils.FilePath.PICTURES_DIRECTORY}/test.jpg`;
-          // uploads file
-          await reference.putFile(uri);
-          console.log('FILE uploaded to Firebase');
-          alert('Image Saved Successfully.');
-        }
-
-        if (!userEmail) {
-          console.log('User email not available.');
-          return;
-        }
+      // if (userLoggedIn) {
+      const user = auth.currentUser;
+      if (user) {
+        const userEmail =
+          user.email || (user.providerData[0] && user.providerData[0].email);
+        // const imageFileName = `combined_${userEmail}.jpg`;
+        const reference = storage().ref(
+          `${userEmail}${'/'}images/${new Date()}`,
+        );
+        // path to existing file on filesystem
+        const pathToFile = `${utils.FilePath.PICTURES_DIRECTORY}/test.jpg`;
+        // uploads file
+        await reference.putFile(uri);
+        console.log('FILE uploaded to Firebase by email');
+        alert('Image Saved Successfully.');
+      } else if (googleEmail) {
+        const reference = storage().ref(
+          `${googleEmail}${'/'}images/${new Date()}`,
+        );
+        // path to existing file on filesystem
+        const pathToFile = `${utils.FilePath.PICTURES_DIRECTORY}/test.jpg`;
+        // uploads file
+        await reference.putFile(uri);
+        console.log('FILE uploaded to Firebase by user google mail');
+        alert('Image Saved Successfully.');
       }
+
+      // if (!userEmail || userName) {
+      //   console.log('User email not available.');
+      //   return;
+      // }
+      else {
+        const deviceId = DeviceInfo.getUniqueIdSync();
+        const reference = storage().ref(`guests/${deviceId}/${new Date()}`);
+        await reference.putFile(uri);
+        console.log('FILE uploaded to Firebase by devId');
+
+        alert('Image Saved Successfully.');
+      }
+      // }
 
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -98,7 +119,7 @@ export default function SliderFrameScreen() {
       setUserLoggedIn(true);
     }
   }, [userName, userEmail]);
-  const signOutHandler = async () => {
+  const signOutHandlerGoogle = async () => {
     try {
       await GoogleSignin.signOut();
       setUserLoggedIn(false); // Set the userLoggedIn state to false
@@ -107,6 +128,17 @@ export default function SliderFrameScreen() {
     } catch (error) {
       console.error(error);
     }
+  };
+  const signOutFirebase = () => {
+    signOut(auth)
+      .then(() => {
+        setUserLoggedIn(false); // Set the userLoggedIn state to false
+        console.log('Signed out successfully from firebase');
+        navigation.replace('SignIn');
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
 
   return (
@@ -118,16 +150,18 @@ export default function SliderFrameScreen() {
           </Pressable>
         </View>
         <View style={styles.hiContainer}>
-          {userLoggedIn ? (
+          {userEmail || userName ? (
             <>
-              {userEmail ? (
-                <Text style={styles.hitext}>hi {userEmail}</Text>
+              <Text style={styles.hitext}>hi {userEmail || userName}</Text>
+              {userName ? (
+                <Pressable onPress={signOutHandlerGoogle}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               ) : (
-                <Text style={styles.hitext}>hi {userName}</Text>
+                <Pressable onPress={signOutFirebase}>
+                  <Text style={styles.signupText}>Sign Out</Text>
+                </Pressable>
               )}
-              <Pressable onPress={signOutHandler}>
-                <Text style={styles.signupText}>Sign Out</Text>
-              </Pressable>
             </>
           ) : (
             <>
@@ -137,11 +171,7 @@ export default function SliderFrameScreen() {
                   <Text style={styles.signupText}>Sign Up</Text>
                 </Pressable>
                 <Text
-                  style={{
-                    fontSize: 20,
-                    color: '#DA34F5',
-                    fontWeight: 'bold',
-                  }}>
+                  style={{fontSize: 20, color: '#DA34F5', fontWeight: 'bold'}}>
                   {' '}
                   |{' '}
                 </Text>

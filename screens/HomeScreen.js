@@ -2,13 +2,15 @@ import {View, Text, StyleSheet, Pressable, Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {auth} from '../firebase/firebase.config';
+import {signOut} from 'firebase/auth';
 
 export default function HomeScreen() {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
 
-  const userName = route.params?.userInfo?.user?.name || 'Guest';
+  const userName = route.params?.userInfo?.user?.name;
   const userEmail = route.params.email;
   const signUpHandler = () => {
     navigation.replace('SignUp');
@@ -23,7 +25,7 @@ export default function HomeScreen() {
     });
   };
   const mylibraryhndlr = () => {
-    navigation.navigate('MyLibrary',{
+    navigation.navigate('MyLibrary', {
       userInfo: route.params?.userInfo,
       userEmail: userEmail,
     });
@@ -38,6 +40,18 @@ export default function HomeScreen() {
       console.error(error);
     }
   };
+  const signOutFirebase = () => {
+    signOut(auth)
+      .then(() => {
+        setUserLoggedIn(false); // Set the userLoggedIn state to false
+        console.log('Signed out successfully from firebase');
+        navigation.replace('SignIn');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     // Check if the user is signed in
     if (userName || userEmail !== 'Guest') {
@@ -47,17 +61,18 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.hiContainer}>
-        {userLoggedIn ? (
+        {userEmail || userName ? (
           <>
-            {userEmail ? (
-              <Text style={styles.hitext}>hi {userEmail}</Text>
+            <Text style={styles.hitext}>hi {userEmail || userName}</Text>
+            {userName ? (
+              <Pressable onPress={signOutHandler}>
+                <Text style={styles.signupText}>Sign Out</Text>
+              </Pressable>
             ) : (
-              <Text style={styles.hitext}>hi {userName}</Text>
+              <Pressable onPress={signOutFirebase}>
+                <Text style={styles.signupText}>Sign Out</Text>
+              </Pressable>
             )}
-
-            <Pressable onPress={signOutHandler}>
-              <Text style={styles.signupText}>Sign Out</Text>
-            </Pressable>
           </>
         ) : (
           <>
@@ -130,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
-    marginTop: 80,
+    marginTop: 90,
   },
   iconContainer: {
     alignItems: 'center',

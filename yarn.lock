@@ -2194,7 +2194,7 @@
     prompts "^2.4.0"
     semver "^6.3.0"
 
-"@react-native-firebase/analytics@^18.2.0", "@react-native-firebase/analytics@18.2.0":
+"@react-native-firebase/analytics@18.2.0":
   version "18.2.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/analytics/-/analytics-18.2.0.tgz"
   integrity sha512-Edua3uemAbInuUQLSKgK531aoPmgyGuBLrwM4ZHaNBNtgdRdATXluk8qHKu+b+/BkEuNqA4DEtXe8wl0DED1Aw==
@@ -2214,20 +2214,10 @@
   dependencies:
     plist "^3.0.5"
 
-"@react-native-firebase/dynamic-links@^18.2.0":
-  version "18.2.0"
-  resolved "https://registry.npmjs.org/@react-native-firebase/dynamic-links/-/dynamic-links-18.2.0.tgz"
-  integrity sha512-Snd80U8+asbd2PEqq8Dsxn6G4J0cm20ReKZBNYyJub8LPs9mdIvcTBjkFyDa6gCygCtUREOzC4iB6QgV3bPtWA==
-
 "@react-native-firebase/firestore@^18.2.0":
   version "18.2.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/firestore/-/firestore-18.2.0.tgz"
   integrity sha512-URLtCYtzdahjEBDD7qXWr93V6evdxsF2L0fBusKd5t+l4OfPzcZ69iwmn2pZs35pIAsOyjFwQ4CwIvIstMxTQA==
-
-"@react-native-firebase/messaging@^18.2.0":
-  version "18.2.0"
-  resolved "https://registry.npmjs.org/@react-native-firebase/messaging/-/messaging-18.2.0.tgz"
-  integrity sha512-bnQkU9zldQUQRK0vbhfjMq186nqrMqUeiJcWAcPqKeGvmMGPLO+KsLFqlU7lI/CDK6+J724sLQl/JkAEIR7pEw==
 
 "@react-native-firebase/remote-config@^18.2.0":
   version "18.2.0"
@@ -6232,6 +6222,11 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-native-device-info@^10.8.0:
+  version "10.8.0"
+  resolved "https://registry.npmjs.org/react-native-device-info/-/react-native-device-info-10.8.0.tgz"
+  integrity sha512-DE4/X82ZVhdcnR1Y21iTP46WSSJA/rHK3lmeqWfGGq1RKLwXTIdxmfbZZnYwryqJ+esrw2l4ND19qlgxDGby8A==
 
 react-native-fs@^2.20.0:
   version "2.20.0"
