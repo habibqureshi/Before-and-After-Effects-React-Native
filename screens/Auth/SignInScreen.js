@@ -25,7 +25,7 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../../firebase/firebase.config';
 export default function SignInScreen() {
   const [userInfo, setUserInfo] = useState(null);
-  const [email, setEmail] = useState(null);
+const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
 
   const navigation = useNavigation();

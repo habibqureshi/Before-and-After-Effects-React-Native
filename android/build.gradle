@@ -36,7 +36,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0") // Update to the latest stable version
+        classpath('com.android.tools.build:gradle:7.4.0') // Update to the latest stable version
         classpath("com.facebook.react:react-native-gradle-plugin:X.X.X") // Update to the version used in your project
         classpath 'com.google.gms:google-services:4.3.15'
 
