@@ -1,7 +1,3 @@
-// import {
-//   GoogleSignin,
-//   statusCodes,
-// } from '@react-native-google-signin/google-signin';
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
@@ -25,14 +21,13 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../../firebase/firebase.config';
 export default function SignInScreen() {
   const [userInfo, setUserInfo] = useState(null);
-const [email, setEmail] = useState(null);
+  const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
 
   const navigation = useNavigation();
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        '536256767534-l0o3oenlqh89si3ksh8ghsd30j0meo3s.apps.googleusercontent.com',
+      webClientId: '', // Add your webClientIdhere
     });
   }, []);
   const signInWithGoogle = async () => {

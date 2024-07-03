@@ -5,13 +5,13 @@ import {getStorage} from 'firebase/storage';
 import storage from '@react-native-firebase/storage';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCALViIRavPw4m7oP1O8nnweZ4UcxwsdOU',
-  authDomain: 'beforeafter-7040a.firebaseapp.com',
-  projectId: 'beforeafter-7040a',
-  storageBucket: 'beforeafter-7040a.appspot.com',
-  messagingSenderId: '536256767534',
-  appId: '1:536256767534:web:c5e3e22855457ac3f7a1bf',
-  measurementId: 'G-HMZT738V8W',
+  apiKey: '',
+  authDomain: '',
+  projectId: '',
+  storageBucket: '',
+  messagingSenderId: '',
+  appId: '',
+  measurementId: '',
 };
 
 export const app = initializeApp(firebaseConfig);
