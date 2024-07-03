@@ -1,6 +1,6 @@
 # Before and After Effect
 
-![Before and After Effect Logo](link-to-logo.png)
+![Before and After Effect Logo](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnN0YWVwd2lubXN2enpvMTNjaGlpanoyODAxOXR0Yzdtc3h2N3RpOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6YaTG3VPZRZmYmidIe/giphy.gif)
 
 ## Description
 
