@@ -50,7 +50,7 @@ Save Image to Gallery
 Image Upload to Firebase Server
 Access Gallery from Different devices
 
-##Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps to contribute:
 
