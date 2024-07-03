@@ -37,16 +37,18 @@ npm run android
 # To install on iOS
 npm run ios
 
-Usage
+## Usage
 After installing the app, you can log in or sign up using your Google account. Once logged in, you can select two different images, use the slider to create a before-and-after effect, and save the images to your gallery. Images are uploaded to the Firebase server, so you can access them from any account.
 
-Features
+## Features
 Sign Up / Login with Google / Firebase
 Before and After Image Slider
 Save Image to Gallery
 Image Upload to Firebase Server
 Access Gallery from Different devices
-Contributing
+
+##Contributing
+
 Contributions are welcome! Please follow these steps to contribute:
 
 Fork the repository.
@@ -56,10 +58,10 @@ Commit your changes (git commit -m 'Add some feature').
 Push to the branch (git push origin feature-branch).
 Open a pull request.
 
-License
+## License
 This project is licensed under the MIT License.
 
-Contact
+## Contact
 Habib Qureshi - habibqureshi1995@gmail.com
 
 Project Link: https://github.com/habibqureshi/Before-and-After-Effects-React-Native
