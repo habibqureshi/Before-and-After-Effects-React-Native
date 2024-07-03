@@ -44,11 +44,11 @@ After installing the app, you can log in or sign up using your Google account. O
 
 ## Features
 
-Sign Up / Login with Google / Firebase
-Before and After Image Slider
-Save Image to Gallery
-Image Upload to Firebase Server
-Access Gallery from Different devices
+- Sign Up / Login with Google / Firebase
+- Before and After Image Slider
+- Save Image to Gallery
+- Image Upload to Firebase Server
+- Access Gallery from Different devices\*
 
 ## Contributing
 
